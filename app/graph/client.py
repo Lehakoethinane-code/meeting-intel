@@ -1,0 +1,106 @@
+import httpx
+from .auth import get_token
+from ..config import get_settings
+
+settings = get_settings()
+
+
+def _headers() -> dict:
+    return {"Authorization": f"Bearer {get_token()}"}
+
+
+async def list_domain_users() -> list[dict]:
+    """Return all users whose mail is in the allowed domain.
+    endswith filters require ConsistencyLevel: eventual + $count=true."""
+    url = (
+        f"{settings.graph_base}/users"
+        f"?$filter=endswith(mail,'@{settings.allowed_domain}')"
+        f"&$select=id,mail,displayName&$top=999&$count=true"
+    )
+    eventual_headers = {**_headers(), "ConsistencyLevel": "eventual"}
+    users: list[dict] = []
+    async with httpx.AsyncClient(timeout=60) as c:
+        while url:
+            r = await c.get(url, headers=eventual_headers)
+            r.raise_for_status()
+            data = r.json()
+            users.extend(data.get("value", []))
+            url = data.get("@odata.nextLink")
+    return users
+
+
+async def get_user_drive_id(user_upn: str) -> str:
+    """Return the OneDrive drive-id for a given user UPN."""
+    url = f"{settings.graph_base}/users/{user_upn}/drive"
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.get(url, headers=_headers())
+        r.raise_for_status()
+        return r.json()["id"]
+
+
+async def list_recordings_folder(drive_id: str) -> list[dict]:
+    """List mp4 files in the Recordings folder of the given drive.
+    Returns [] if the folder doesn't exist yet (new user with no recordings)."""
+    url = f"{settings.graph_base}/drives/{drive_id}/root:/Recordings:/children"
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.get(url, headers=_headers())
+        if r.status_code == 404:
+            return []
+        r.raise_for_status()
+        return [i for i in r.json().get("value", []) if i.get("name", "").endswith(".mp4")]
+
+
+async def get_drive_item(drive_id: str, item_id: str) -> dict:
+    url = f"{settings.graph_base}/drives/{drive_id}/items/{item_id}"
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.get(url, headers=_headers())
+        r.raise_for_status()
+        return r.json()
+
+
+async def download_drive_item(drive_id: str, item_id: str, dest_path: str) -> str:
+    """Stream the recording to disk (don't load a 2h video into memory)."""
+    url = f"{settings.graph_base}/drives/{drive_id}/items/{item_id}/content"
+    async with httpx.AsyncClient(timeout=None, follow_redirects=True) as c:
+        async with c.stream("GET", url, headers=_headers()) as r:
+            r.raise_for_status()
+            with open(dest_path, "wb") as f:
+                async for chunk in r.aiter_bytes(chunk_size=1 << 20):
+                    f.write(chunk)
+    return dest_path
+
+
+async def send_mail(sender: str, to_upns: list[str], subject: str, html_body: str) -> None:
+    url = f"{settings.graph_base}/users/{sender}/sendMail"
+    payload = {
+        "message": {
+            "subject": subject,
+            "body": {"contentType": "HTML", "content": html_body},
+            "toRecipients": [{"emailAddress": {"address": a}} for a in to_upns],
+        },
+        "saveToSentItems": True,
+    }
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.post(url, headers=_headers(), json=payload)
+        r.raise_for_status()
+
+
+async def get_event_attendees(drive_id: str, drive_item_id: str) -> list[str]:
+    """Best-effort: Teams recordings carry attendee metadata in SharePoint list-item fields.
+    Falls back to empty list if the metadata isn't present."""
+    try:
+        url = (
+            f"{settings.graph_base}/drives/{drive_id}"
+            f"/items/{drive_item_id}/listItem?$expand=fields($select=Attendees)"
+        )
+        async with httpx.AsyncClient(timeout=15) as c:
+            r = await c.get(url, headers=_headers())
+            if r.status_code != 200:
+                return []
+            data = r.json()
+            raw = (data.get("fields") or {}).get("Attendees", "")
+            if not raw:
+                return []
+            return [a.strip() for a in raw.split(";") if "@" in a]
+    except Exception:
+        return []
