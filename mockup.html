@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Intelligence — UI Mockup</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #003366;
+    --navy-light: #0a4a8c;
+    --gold: #C9A52C;
+    --gold-light: #e8c84a;
+    --white: #ffffff;
+    --bg: #F0F2F5;
+    --surface: #ffffff;
+    --border: #dde1e8;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #2563eb;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── NAV ── */
+  .topnav {
+    background: var(--navy);
+    height: 56px;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .topnav .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+  .brand-mark {
+    width: 32px; height: 32px;
+    background: var(--gold);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: var(--navy); font-size: 14px;
+  }
+  .brand-name {
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+  }
+  .brand-name span { color: var(--gold); }
+  .nav-links { display: flex; gap: 4px; margin-left: 8px; }
+  .nav-link {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .nav-link:hover, .nav-link.active {
+    background: rgba(255,255,255,0.12);
+    color: var(--white);
+  }
+  .nav-link.active { color: var(--gold); }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .nav-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--gold);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--navy);
+    cursor: pointer;
+  }
+  .nav-user { color: rgba(255,255,255,0.75); font-size: 13px; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── PAGE WRAPPER ── */
+  .page { max-width: 1200px; margin: 0 auto; padding: 28px 24px; }
+  .page-header { margin-bottom: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--navy); }
+  .page-sub { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
+
+  /* ── TABS ── */
+  .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 24px; }
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13.5px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+  .tab:hover { color: var(--navy); }
+  .tab.active { color: var(--navy); border-bottom-color: var(--gold); font-weight: 600; }
+  .tab-count {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--navy);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 20px;
+    margin-left: 6px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+  .meeting-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: all 0.15s;
+    overflow: hidden;
+  }
+  .meeting-card:hover {
+    border-color: var(--navy);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .meeting-card-top {
+    background: var(--navy);
+    padding: 14px 16px 12px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .meeting-card-top .title {
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .meeting-card-body { padding: 14px 16px; }
+  .meta-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+  .meta-item { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 12.5px; }
+  .meta-item svg { opacity: 0.6; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11.5px; font-weight: 600;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge-review { background: #fef3c7; color: #92400e; }
+  .badge-review .badge-dot { background: #f59e0b; }
+  .badge-processing { background: #dbeafe; color: #1e40af; }
+  .badge-processing .badge-dot { background: #3b82f6; animation: pulse 1.5s infinite; }
+  .badge-approved { background: #dcfce7; color: #166534; }
+  .badge-approved .badge-dot { background: #16a34a; }
+  .badge-sent { background: #f0fdf4; color: #166534; }
+  .badge-sent .badge-dot { background: #22c55e; }
+  .badge-failed { background: #fee2e2; color: #991b1b; }
+  .badge-failed .badge-dot { background: #ef4444; }
+  .badge-high { background: #dcfce7; color: #166534; }
+  .badge-medium { background: #fef9c3; color: #854d0e; }
+  .badge-low { background: #fee2e2; color: #991b1b; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* ── PROCESSING SCREEN ── */
+  .processing-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    max-width: 560px;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  .processing-header {
+    background: var(--navy);
+    border-bottom: 3px solid var(--gold);
+    padding: 20px 24px;
+  }
+  .processing-header h2 { color: var(--white); font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .processing-header p { color: rgba(255,255,255,0.6); font-size: 13px; }
+  .processing-body { padding: 28px 24px; }
+  .pipeline-steps { display: flex; flex-direction: column; gap: 0; }
+  .pipeline-step { display: flex; gap: 16px; align-items: flex-start; position: relative; padding-bottom: 24px; }
+  .pipeline-step:last-child { padding-bottom: 0; }
+  .pipeline-step::before {
+    content: '';
+    position: absolute;
+    left: 15px; top: 32px;
+    width: 2px; height: calc(100% - 16px);
+    background: var(--border);
+  }
+  .pipeline-step:last-child::before { display: none; }
+  .pipeline-step.done::before { background: var(--success); }
+  .step-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 14px; position: relative; z-index: 1;
+  }
+  .step-icon.done { background: var(--success); color: white; }
+  .step-icon.active { background: var(--navy); color: var(--gold); border: 2px solid var(--gold); }
+  .step-icon.pending { background: var(--border); color: var(--muted); }
+  .step-content { padding-top: 4px; }
+  .step-label { font-weight: 600; font-size: 14px; color: var(--text); }
+  .step-label.pending { color: var(--muted); }
+  .step-detail { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .step-spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── MEETING DETAIL ── */
+  .detail-layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+  .detail-sidebar {
+    position: sticky; top: 76px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .sidebar-header {
+    background: var(--navy);
+    border-bottom: 3px solid var(--gold);
+    padding: 16px;
+  }
+  .sidebar-header h2 { color: var(--white); font-size: 14px; font-weight: 600; line-height: 1.4; }
+  .sidebar-body { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .sidebar-meta { display: flex; flex-direction: column; gap: 8px; }
+  .sidebar-row { display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .sidebar-value { font-size: 13px; color: var(--text); font-weight: 500; }
+  .sidebar-divider { height: 1px; background: var(--border); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.15s; text-decoration: none;
+  }
+  .btn-primary { background: var(--gold); color: var(--navy); }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-outline { background: transparent; color: var(--navy); border: 1.5px solid var(--border); }
+  .btn-outline:hover { border-color: var(--navy); background: #f8fafc; }
+  .btn-sm { padding: 5px 12px; font-size: 12.5px; }
+  .btn-full { width: 100%; }
+
+  /* sections */
+  .detail-main { display: flex; flex-direction: column; gap: 16px; }
+  .section-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .section-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    background: #fafbfc;
+  }
+  .section-head-bar { width: 4px; height: 18px; background: var(--gold); border-radius: 2px; }
+  .section-head h3 { font-size: 13.5px; font-weight: 700; color: var(--navy); }
+  .section-body { padding: 16px 18px; }
+
+  /* speaker cards */
+  .speaker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .speaker-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .speaker-card-head { background: var(--navy); padding: 10px 14px; border-bottom: 2px solid var(--gold); }
+  .speaker-card-head .name { color: var(--white); font-size: 13px; font-weight: 600; }
+  .speaker-card-head .role { color: rgba(255,255,255,0.6); font-size: 11.5px; margin-top: 1px; }
+  .speaker-card-body { padding: 10px 14px; background: #fafbfc; }
+  .speaker-point { display: flex; gap: 7px; font-size: 12.5px; color: var(--text); margin-bottom: 5px; line-height: 1.5; }
+  .speaker-point:last-child { margin-bottom: 0; }
+  .speaker-bullet { color: var(--gold); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* tables */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: var(--navy); color: var(--white);
+    padding: 9px 12px; text-align: left;
+    font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .data-table td {
+    padding: 9px 12px; border: 1px solid var(--border);
+    vertical-align: top; line-height: 1.5;
+    color: var(--text);
+  }
+  .data-table tr:nth-child(even) td { background: #f8fafc; }
+  .data-table tr:hover td { background: #f0f4ff; }
+
+  /* editable action items */
+  .ai-table .editable-cell {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ai-table .edit-btn {
+    opacity: 0; transition: opacity 0.15s;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); padding: 2px; border-radius: 3px;
+  }
+  .ai-table tr:hover .edit-btn { opacity: 1; }
+  .ai-table tr:hover .edit-btn:hover { color: var(--navy); background: var(--border); }
+  .edit-input {
+    border: 1.5px solid var(--gold);
+    border-radius: 4px;
+    padding: 3px 7px;
+    font-size: 13px;
+    width: 100%;
+    outline: none;
+    background: #fffbea;
+  }
+  .save-btn {
+    background: var(--gold); color: var(--navy);
+    border: none; border-radius: 4px; padding: 3px 10px;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .cancel-btn {
+    background: var(--border); color: var(--muted);
+    border: none; border-radius: 4px; padding: 3px 8px;
+    font-size: 12px; cursor: pointer;
+  }
+
+  /* next steps */
+  .next-steps-list { display: flex; flex-direction: column; gap: 8px; }
+  .next-step { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; }
+  .next-step-bullet { color: var(--gold); font-weight: 700; font-size: 16px; line-height: 1.3; flex-shrink: 0; }
+
+  /* objective */
+  .objective-text { font-size: 13.5px; color: var(--text); line-height: 1.8; }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--navy); color: var(--white);
+    padding: 12px 20px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    border-left: 4px solid var(--gold);
+    display: none; z-index: 999;
+    animation: slideIn 0.2s ease;
+  }
+  .toast.show { display: block; }
+  @keyframes slideIn { from { transform: translateY(12px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+  /* approve modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 10px;
+    max-width: 440px; width: 90%; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-header { background: var(--navy); border-bottom: 3px solid var(--gold); padding: 18px 22px; }
+  .modal-header h3 { color: var(--white); font-size: 16px; font-weight: 600; }
+  .modal-header p { color: rgba(255,255,255,0.65); font-size: 13px; margin-top: 3px; }
+  .modal-body { padding: 22px; font-size: 13.5px; line-height: 1.7; color: var(--text); }
+  .modal-body strong { color: var(--navy); }
+  .modal-footer { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* empty state */
+  .empty { text-align: center; padding: 48px 24px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+
+  /* stats bar */
+  .stats-bar { display: flex; gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    flex: 1; background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow);
+  }
+  .stat-icon {
+    width: 40px; height: 40px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .stat-icon.gold { background: #fef3c7; }
+  .stat-icon.blue { background: #dbeafe; }
+  .stat-icon.green { background: #dcfce7; }
+  .stat-icon.red { background: #fee2e2; }
+  .stat-num { font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* back link */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--muted); font-size: 13px; cursor: pointer;
+    margin-bottom: 16px; text-decoration: none;
+  }
+  .back-link:hover { color: var(--navy); }
+
+  /* approval confirmed */
+  .approved-banner {
+    background: #dcfce7; border: 1px solid #bbf7d0; border-radius: var(--radius);
+    padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+    color: #166534; font-size: 13.5px; font-weight: 500; margin-bottom: 16px;
+  }
+
+  @media (max-width: 768px) {
+    .detail-layout { grid-template-columns: 1fr; }
+    .detail-sidebar { position: static; }
+    .stats-bar { flex-wrap: wrap; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <a class="brand" onclick="showScreen('dashboard')">
+    <div class="brand-mark">MI</div>
+    <span class="brand-name">Tax<span>Consulting</span> SA</span>
+  </a>
+  <div class="nav-links">
+    <span class="nav-link active" id="nav-dashboard" onclick="showScreen('dashboard')">Dashboard</span>
+    <span class="nav-link" id="nav-processing" onclick="showScreen('processing')">Processing</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-user">sarah.van.der.berg@taxconsulting.co.za</span>
+    <div class="nav-avatar">SV</div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 1: DASHBOARD
+══════════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="page">
+    <div class="page-header">
+      <div class="page-title">Meeting Intelligence</div>
+      <div class="page-sub">Review and approve AI-extracted meeting notes before they are emailed to participants.</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-icon gold">📋</div>
+        <div>
+          <div class="stat-num">3</div>
+          <div class="stat-label">Awaiting Review</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">⚙️</div>
+        <div>
+          <div class="stat-num">1</div>
+          <div class="stat-label">Processing</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div>
+          <div class="stat-num">14</div>
+          <div class="stat-label">Sent This Month</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">⚠️</div>
+        <div>
+          <div class="stat-num">0</div>
+          <div class="stat-label">Failed</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'pending')">Awaiting Review <span class="tab-count">3</span></div>
+      <div class="tab" onclick="switchTab(this,'processing')">Processing <span class="tab-count">1</span></div>
+      <div class="tab" onclick="switchTab(this,'history')">History</div>
+    </div>
+
+    <!-- Pending tab -->
+    <div id="tab-pending">
+      <div class="card-grid">
+
+        <div class="meeting-card" onclick="showScreen('detail')">
+          <div class="meeting-card-top">
+            <div class="title">Q2 SARS Compliance Review — Tax Division</div>
+          </div>
+          <div class="meeting-card-body">
+            <div class="meta-row">
+              <span class="meta-item">📅 29 May 2026</span>
+              <span class="meta-item">⏱ 48 min</span>
+              <span class="meta-item">👤 4 participants</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-item">🎙 Organised by: J. Mokoena</span>
+            </div>
+            <div class="card-footer">
+              <span class="badge badge-review"><span class="badge-dot"></span>Awaiting Review</span>
+              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); showScreen('detail')">Review →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="meeting-card">
+          <div class="meeting-card-top">
+            <div class="title">Client Onboarding — Nexus Holdings (Pty) Ltd</div>
+          </div>
+          <div class="meeting-card-body">
+            <div class="meta-row">
+              <span class="meta-item">📅 28 May 2026</span>
+              <span class="meta-item">⏱ 31 min</span>
+              <span class="meta-item">👤 3 participants</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-item">🎙 Organised by: P. Dlamini</span>
+            </div>
+            <div class="card-footer">
+              <span class="badge badge-review"><span class="badge-dot"></span>Awaiting Review</span>
+              <button class="btn btn-primary btn-sm">Review →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="meeting-card">
+          <div class="meeting-card-top">
+            <div class="title">VAT Reconciliation — Monthly Sync</div>
+          </div>
+          <div class="meeting-card-body">
+            <div class="meta-row">
+              <span class="meta-item">📅 27 May 2026</span>
+              <span class="meta-item">⏱ 22 min</span>
+              <span class="meta-item">👤 2 participants</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-item">🎙 Organised by: S. van der Berg</span>
+            </div>
+            <div class="card-footer">
+              <span class="badge badge-review"><span class="badge-dot"></span>Awaiting Review</span>
+              <button class="btn btn-primary btn-sm">Review →</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Processing tab -->
+    <div id="tab-processing" style="display:none">
+      <div class="card-grid">
+        <div class="meeting-card" onclick="showScreen('processing')">
+          <div class="meeting-card-top">
+            <div class="title">Estate Planning — Khumalo Family Trust</div>
+          </div>
+          <div class="meeting-card-body">
+            <div class="meta-row">
+              <span class="meta-item">📅 2 Jun 2026</span>
+              <span class="meta-item">⏱ ~55 min</span>
+              <span class="meta-item">👤 5 participants</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-item">🎙 Organised by: T. Khumalo</span>
+            </div>
+            <div class="card-footer">
+              <span class="badge badge-processing"><span class="badge-dot"></span>Transcribing…</span>
+              <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); showScreen('processing')">View Progress</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History tab -->
+    <div id="tab-history" style="display:none">
+      <div class="card" style="overflow:hidden">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Meeting</th>
+              <th>Date</th>
+              <th>Organiser</th>
+              <th>Participants</th>
+              <th>Status</th>
+              <th>Approved By</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Income Tax Filing — March 2026</strong></td>
+              <td>15 May 2026</td>
+              <td>J. Mokoena</td>
+              <td>3</td>
+              <td><span class="badge badge-sent"><span class="badge-dot"></span>Sent</span></td>
+              <td>J. Mokoena</td>
+            </tr>
+            <tr>
+              <td><strong>Transfer Pricing Review</strong></td>
+              <td>10 May 2026</td>
+              <td>S. van der Berg</td>
+              <td>4</td>
+              <td><span class="badge badge-sent"><span class="badge-dot"></span>Sent</span></td>
+              <td>S. van der Berg</td>
+            </tr>
+            <tr>
+              <td><strong>Audit Preparation — Client ABC</strong></td>
+              <td>5 May 2026</td>
+              <td>P. Dlamini</td>
+              <td>6</td>
+              <td><span class="badge badge-sent"><span class="badge-dot"></span>Sent</span></td>
+              <td>P. Dlamini</td>
+            </tr>
+            <tr>
+              <td><strong>PAYE Reconciliation Check</strong></td>
+              <td>28 Apr 2026</td>
+              <td>T. Nkosi</td>
+              <td>2</td>
+              <td><span class="badge badge-sent"><span class="badge-dot"></span>Sent</span></td>
+              <td>T. Nkosi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 2: PROCESSING
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-processing">
+  <div class="page">
+    <a class="back-link" onclick="showScreen('dashboard')">← Back to Dashboard</a>
+    <div class="page-header">
+      <div class="page-title">Processing Recording</div>
+      <div class="page-sub">Estate Planning — Khumalo Family Trust &nbsp;·&nbsp; Detected 2 Jun 2026, 09:14</div>
+    </div>
+
+    <div class="processing-card">
+      <div class="processing-header">
+        <h2>Khumalo Family Trust — Estate Planning Discussion.mp4</h2>
+        <p>Transcription in progress · Estimated 4–6 minutes remaining</p>
+      </div>
+      <div class="processing-body">
+        <div class="pipeline-steps">
+
+          <div class="pipeline-step done">
+            <div class="step-icon done">✓</div>
+            <div class="step-content">
+              <div class="step-label">Recording Detected</div>
+              <div class="step-detail">Found in T. Khumalo's OneDrive · 09:14 UTC</div>
+            </div>
+          </div>
+
+          <div class="pipeline-step done">
+            <div class="step-icon done">✓</div>
+            <div class="step-content">
+              <div class="step-label">POPIA Notice Sent</div>
+              <div class="step-detail">Notified 5 participants before processing started</div>
+            </div>
+          </div>
+
+          <div class="pipeline-step done">
+            <div class="step-icon done">✓</div>
+            <div class="step-content">
+              <div class="step-label">Download Complete</div>
+              <div class="step-detail">54 min 22 sec · 847 MB</div>
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="step-icon active">
+              <span class="step-spinner"></span>
+            </div>
+            <div class="step-content">
+              <div class="step-label">Transcribing</div>
+              <div class="step-detail">AssemblyAI · Diarized speaker detection · ~3 min remaining</div>
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="step-icon pending">4</div>
+            <div class="step-content">
+              <div class="step-label pending">Extracting Insights</div>
+              <div class="step-detail">Claude will extract action items, risks, and discussion points</div>
+            </div>
+          </div>
+
+          <div class="pipeline-step">
+            <div class="step-icon pending">5</div>
+            <div class="step-content">
+              <div class="step-label pending">Ready for Review</div>
+              <div class="step-detail">You will be notified when this meeting is ready to approve</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     SCREEN 3: MEETING DETAIL / REVIEW
+══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-detail">
+  <div class="page">
+    <a class="back-link" onclick="showScreen('dashboard')">← Back to Dashboard</a>
+
+    <div id="approved-banner" class="approved-banner" style="display:none">
+      ✅ <span>Meeting notes approved and emailed to all 4 participants.</span>
+    </div>
+
+    <div class="detail-layout">
+
+      <!-- Sidebar -->
+      <div class="detail-sidebar">
+        <div class="sidebar-header">
+          <h2>Q2 SARS Compliance Review — Tax Division</h2>
+        </div>
+        <div class="sidebar-body">
+          <div class="sidebar-meta">
+            <div class="sidebar-row">
+              <span class="sidebar-label">Date</span>
+              <span class="sidebar-value">29 May 2026</span>
+            </div>
+            <div class="sidebar-row">
+              <span class="sidebar-label">Time</span>
+              <span class="sidebar-value">10:00 – 10:48</span>
+            </div>
+            <div class="sidebar-row">
+              <span class="sidebar-label">Platform</span>
+              <span class="sidebar-value">Microsoft Teams</span>
+            </div>
+            <div class="sidebar-row">
+              <span class="sidebar-label">Organiser</span>
+              <span class="sidebar-value">J. Mokoena</span>
+            </div>
+            <div class="sidebar-row">
+              <span class="sidebar-label">Attendees</span>
+              <span class="sidebar-value">S. van der Berg, P. Dlamini, T. Nkosi</span>
+            </div>
+            <div class="sidebar-row">
+              <span class="sidebar-label">Apologies</span>
+              <span class="sidebar-value">—</span>
+            </div>
+          </div>
+          <div class="sidebar-divider"></div>
+          <div class="sidebar-row">
+            <span class="sidebar-label">Status</span>
+            <span style="margin-top:4px"><span class="badge badge-review"><span class="badge-dot"></span>Awaiting Review</span></span>
+          </div>
+          <div class="sidebar-row">
+            <span class="sidebar-label">Action Items</span>
+            <span class="sidebar-value">5 extracted</span>
+          </div>
+          <div class="sidebar-divider"></div>
+          <button class="btn btn-primary btn-full" onclick="showModal()">✓ Approve &amp; Send Email</button>
+          <button class="btn btn-outline btn-full btn-sm" style="margin-top:4px">Preview Email</button>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="detail-main">
+
+        <!-- Objective -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Meeting Objective</h3>
+          </div>
+          <div class="section-body">
+            <p class="objective-text">To review the Q2 SARS compliance status across all active client portfolios, confirm outstanding submissions, and assign responsibilities for the June filing deadline.</p>
+          </div>
+        </div>
+
+        <!-- Speaker Highlights -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Speaker Highlights</h3>
+          </div>
+          <div class="section-body">
+            <div class="speaker-grid">
+              <div class="speaker-card">
+                <div class="speaker-card-head">
+                  <div class="name">J. Mokoena</div>
+                  <div class="role">Facilitator</div>
+                </div>
+                <div class="speaker-card-body">
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Led review of all 12 outstanding SARS submissions, flagging 3 at risk.</div>
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Confirmed the June 30 hard deadline with no extensions available.</div>
+                </div>
+              </div>
+              <div class="speaker-card">
+                <div class="speaker-card-head">
+                  <div class="name">S. van der Berg</div>
+                  <div class="role">Participant</div>
+                </div>
+                <div class="speaker-card-body">
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Raised concern about missing supporting documents for Nexus Holdings.</div>
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Committed to chasing client for outstanding bank statements by Friday.</div>
+                </div>
+              </div>
+              <div class="speaker-card">
+                <div class="speaker-card-head">
+                  <div class="name">P. Dlamini</div>
+                  <div class="role">Participant</div>
+                </div>
+                <div class="speaker-card-body">
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Confirmed VAT reconciliation for 8 clients is complete and ready to submit.</div>
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Will prepare consolidated submission schedule by end of day Thursday.</div>
+                </div>
+              </div>
+              <div class="speaker-card">
+                <div class="speaker-card-head">
+                  <div class="name">T. Nkosi</div>
+                  <div class="role">Participant</div>
+                </div>
+                <div class="speaker-card-body">
+                  <div class="speaker-point"><span class="speaker-bullet">•</span>Highlighted a SARS eFiling system outage risk and suggested submitting early.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Discussion Points -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Key Discussion Points</h3>
+          </div>
+          <div class="section-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th width="22%">Topic</th><th width="48%">Discussion Summary</th><th width="30%">Outcome / Decision</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>Q2 Submission Status</strong></td>
+                  <td>Mokoena walked through all 12 active portfolios. 9 are ready; 3 have outstanding documents.</td>
+                  <td>Team to resolve outstanding items by 5 Jun.</td>
+                </tr>
+                <tr>
+                  <td><strong>Nexus Holdings Docs</strong></td>
+                  <td>Van der Berg noted bank statements and invoices are still outstanding from client.</td>
+                  <td>Van der Berg to follow up by Friday 31 May.</td>
+                </tr>
+                <tr>
+                  <td><strong>eFiling System Risk</strong></td>
+                  <td>Nkosi flagged SARS eFiling outages during peak periods near deadlines.</td>
+                  <td>Submit all ready returns by 20 June at the latest.</td>
+                </tr>
+                <tr>
+                  <td><strong>VAT Reconciliation</strong></td>
+                  <td>Dlamini confirmed 8 VAT recons are complete. Remaining 2 await client sign-off.</td>
+                  <td>Dlamini to prepare consolidated schedule by Thursday.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Items (editable) -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Action Items</h3>
+            <span style="margin-left:auto;color:var(--muted);font-size:12px">Click a row to edit</span>
+          </div>
+          <div class="section-body" style="padding:0">
+            <table class="data-table ai-table">
+              <thead><tr>
+                <th width="28%">Action</th>
+                <th width="16%">Assigned To</th>
+                <th width="13%">Due Date</th>
+                <th width="10%">Confidence</th>
+                <th width="33%">Source Quote</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="editable-cell" id="task-1-display">
+                      Obtain outstanding bank statements and invoices from Nexus Holdings
+                      <button class="edit-btn" onclick="startEdit(1)" title="Edit">✏️</button>
+                    </div>
+                    <div id="task-1-edit" style="display:none">
+                      <input class="edit-input" id="task-1-input" value="Obtain outstanding bank statements and invoices from Nexus Holdings">
+                      <div style="display:flex;gap:6px;margin-top:5px">
+                        <button class="save-btn" onclick="saveEdit(1)">Save</button>
+                        <button class="cancel-btn" onclick="cancelEdit(1)">Cancel</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td>S. van der Berg</td>
+                  <td>31 May 2026</td>
+                  <td><span class="badge badge-high">High</span></td>
+                  <td><em>"I'll follow up with Nexus directly — should have the statements by Friday."</em></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="editable-cell" id="task-2-display">
+                      Prepare consolidated VAT submission schedule
+                      <button class="edit-btn" onclick="startEdit(2)" title="Edit">✏️</button>
+                    </div>
+                    <div id="task-2-edit" style="display:none">
+                      <input class="edit-input" id="task-2-input" value="Prepare consolidated VAT submission schedule">
+                      <div style="display:flex;gap:6px;margin-top:5px">
+                        <button class="save-btn" onclick="saveEdit(2)">Save</button>
+                        <button class="cancel-btn" onclick="cancelEdit(2)">Cancel</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td>P. Dlamini</td>
+                  <td>5 Jun 2026</td>
+                  <td><span class="badge badge-high">High</span></td>
+                  <td><em>"I'll put together a consolidated schedule by end of Thursday."</em></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="editable-cell" id="task-3-display">
+                      Submit all ready returns ahead of eFiling peak period
+                      <button class="edit-btn" onclick="startEdit(3)" title="Edit">✏️</button>
+                    </div>
+                    <div id="task-3-edit" style="display:none">
+                      <input class="edit-input" id="task-3-input" value="Submit all ready returns ahead of eFiling peak period">
+                      <div style="display:flex;gap:6px;margin-top:5px">
+                        <button class="save-btn" onclick="saveEdit(3)">Save</button>
+                        <button class="cancel-btn" onclick="cancelEdit(3)">Cancel</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td>All</td>
+                  <td>20 Jun 2026</td>
+                  <td><span class="badge badge-medium">Medium</span></td>
+                  <td><em>"We should not be submitting on the last day — SARS eFiling goes down every year."</em></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="editable-cell" id="task-4-display">
+                      Obtain client sign-off for remaining 2 VAT reconciliations
+                      <button class="edit-btn" onclick="startEdit(4)" title="Edit">✏️</button>
+                    </div>
+                    <div id="task-4-edit" style="display:none">
+                      <input class="edit-input" id="task-4-input" value="Obtain client sign-off for remaining 2 VAT reconciliations">
+                      <div style="display:flex;gap:6px;margin-top:5px">
+                        <button class="save-btn" onclick="saveEdit(4)">Save</button>
+                        <button class="cancel-btn" onclick="cancelEdit(4)">Cancel</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td>P. Dlamini</td>
+                  <td>Early Jun 2026</td>
+                  <td><span class="badge badge-medium">Medium</span></td>
+                  <td><em>"The two outstanding ones just need the clients to sign off, shouldn't take long."</em></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="editable-cell" id="task-5-display">
+                      Send reminder to all clients re: June 30 SARS deadline
+                      <button class="edit-btn" onclick="startEdit(5)" title="Edit">✏️</button>
+                    </div>
+                    <div id="task-5-edit" style="display:none">
+                      <input class="edit-input" id="task-5-input" value="Send reminder to all clients re: June 30 SARS deadline">
+                      <div style="display:flex;gap:6px;margin-top:5px">
+                        <button class="save-btn" onclick="saveEdit(5)">Save</button>
+                        <button class="cancel-btn" onclick="cancelEdit(5)">Cancel</button>
+                      </div>
+                    </div>
+                  </td>
+                  <td>J. Mokoena</td>
+                  <td>3 Jun 2026</td>
+                  <td><span class="badge badge-high">High</span></td>
+                  <td><em>"We need to send clients a reminder — some of them don't know there's no extension this year."</em></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Deliverables -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Deliverables</h3>
+          </div>
+          <div class="section-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Deliverable</th><th>Responsible</th><th>Delivery Method</th><th>Due Date</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>Consolidated Q2 Submission Schedule</strong></td>
+                  <td>P. Dlamini</td>
+                  <td>SharePoint / Teams</td>
+                  <td>5 Jun 2026</td>
+                </tr>
+                <tr>
+                  <td><strong>Client Deadline Reminder Email</strong></td>
+                  <td>J. Mokoena</td>
+                  <td>Email</td>
+                  <td>3 Jun 2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Risks -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Risks / Challenges / Dependencies</h3>
+          </div>
+          <div class="section-body" style="padding:0">
+            <table class="data-table">
+              <thead><tr><th>Item</th><th>Impact</th><th>Resolution</th><th>Owner</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><strong>SARS eFiling system outages near deadline</strong></td>
+                  <td>Late submissions, penalties for clients</td>
+                  <td>Submit all ready returns by 20 June</td>
+                  <td>All</td>
+                </tr>
+                <tr>
+                  <td><strong>Outstanding documents from Nexus Holdings</strong></td>
+                  <td>Cannot complete submission without them</td>
+                  <td>Van der Berg to follow up directly with client</td>
+                  <td>S. van der Berg</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Next Steps</h3>
+          </div>
+          <div class="section-body">
+            <div class="next-steps-list">
+              <div class="next-step"><span class="next-step-bullet">•</span>Van der Berg to contact Nexus Holdings for outstanding documents by 31 May.</div>
+              <div class="next-step"><span class="next-step-bullet">•</span>Dlamini to circulate consolidated submission schedule by Thursday 5 June.</div>
+              <div class="next-step"><span class="next-step-bullet">•</span>Mokoena to send deadline reminder to all clients by 3 June.</div>
+              <div class="next-step"><span class="next-step-bullet">•</span>All ready returns to be submitted by 20 June to avoid eFiling peak congestion.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Next Meeting -->
+        <div class="section-card">
+          <div class="section-head">
+            <div class="section-head-bar"></div>
+            <h3>Next Meeting</h3>
+          </div>
+          <div class="section-body">
+            <table class="data-table" style="max-width:480px">
+              <tbody>
+                <tr><td width="160"><strong>Proposed Date</strong></td><td>12 June 2026</td></tr>
+                <tr><td><strong>Proposed Time</strong></td><td>10:00</td></tr>
+                <tr><td><strong>Agenda Focus</strong></td><td>Final submission status check and eFiling confirmation</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal-overlay" id="approve-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Approve &amp; Send Meeting Notes</h3>
+      <p>This will email the notes to all 4 participants.</p>
+    </div>
+    <div class="modal-body">
+      The formatted meeting notes for <strong>Q2 SARS Compliance Review — Tax Division</strong> will be sent to:<br><br>
+      <strong>J. Mokoena, S. van der Berg, P. Dlamini, T. Nkosi</strong><br><br>
+      Once sent this cannot be undone. Please confirm you have reviewed the action items above.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="hideModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmApprove()">✓ Confirm &amp; Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✅ Meeting notes sent to all participants.</div>
+
+<script>
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    if (name === 'dashboard') document.getElementById('nav-dashboard').classList.add('active');
+    if (name === 'processing') document.getElementById('nav-processing').classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function switchTab(el, name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['pending','processing','history'].forEach(n => {
+      const el = document.getElementById('tab-' + n);
+      if (el) el.style.display = n === name ? 'block' : 'none';
+    });
+  }
+
+  function startEdit(id) {
+    document.getElementById('task-' + id + '-display').style.display = 'none';
+    document.getElementById('task-' + id + '-edit').style.display = 'block';
+    document.getElementById('task-' + id + '-input').focus();
+  }
+
+  function saveEdit(id) {
+    const val = document.getElementById('task-' + id + '-input').value;
+    const display = document.getElementById('task-' + id + '-display');
+    display.childNodes[0].textContent = val + ' ';
+    display.style.display = 'flex';
+    document.getElementById('task-' + id + '-edit').style.display = 'none';
+    showToast('Action item updated.');
+  }
+
+  function cancelEdit(id) {
+    document.getElementById('task-' + id + '-display').style.display = 'flex';
+    document.getElementById('task-' + id + '-edit').style.display = 'none';
+  }
+
+  function showModal() { document.getElementById('approve-modal').classList.add('show'); }
+  function hideModal() { document.getElementById('approve-modal').classList.remove('show'); }
+
+  function confirmApprove() {
+    hideModal();
+    document.getElementById('approved-banner').style.display = 'flex';
+    document.querySelector('.detail-sidebar .btn-primary').disabled = true;
+    document.querySelector('.detail-sidebar .btn-primary').textContent = '✓ Approved';
+    document.querySelector('.detail-sidebar .btn-primary').style.background = '#16a34a';
+    document.querySelector('.detail-sidebar .btn-primary').style.color = 'white';
+    showToast('✅ Meeting notes sent to all participants.');
+    window.scrollTo(0, 0);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+</script>
+</body>
+</html>

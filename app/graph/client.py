@@ -6,6 +6,7 @@ settings = get_settings()
 
 
 def _headers() -> dict:
+    """Build the Authorization header required by every Microsoft Graph request."""
     return {"Authorization": f"Bearer {get_token()}"}
 
 
@@ -51,6 +52,7 @@ async def list_recordings_folder(drive_id: str) -> list[dict]:
 
 
 async def get_drive_item(drive_id: str, item_id: str) -> dict:
+    """Fetch a single OneDrive item's metadata (name, size, createdBy, etc.)."""
     url = f"{settings.graph_base}/drives/{drive_id}/items/{item_id}"
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.get(url, headers=_headers())
@@ -71,6 +73,11 @@ async def download_drive_item(drive_id: str, item_id: str, dest_path: str) -> st
 
 
 async def send_mail(sender: str, to_upns: list[str], subject: str, html_body: str) -> None:
+    """Send an HTML email on behalf of *sender* to one or more recipients.
+
+    Requires the app to have the ``Mail.Send`` application permission in Entra ID.
+    The message is saved to the sender's Sent Items folder.
+    """
     url = f"{settings.graph_base}/users/{sender}/sendMail"
     payload = {
         "message": {
@@ -83,6 +90,29 @@ async def send_mail(sender: str, to_upns: list[str], subject: str, html_body: st
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(url, headers=_headers(), json=payload)
         r.raise_for_status()
+
+
+async def get_upcoming_calendar_events(upn: str, days: int = 7) -> list[dict]:
+    """Return the user's online meetings (Teams) for the next `days` days."""
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    end = now + timedelta(days=days)
+    fmt = "%Y-%m-%dT%H:%M:%SZ"
+    url = (
+        f"{settings.graph_base}/users/{upn}/calendarView"
+        f"?startDateTime={now.strftime(fmt)}"
+        f"&endDateTime={end.strftime(fmt)}"
+        f"&$select=id,subject,start,end,organizer,attendees,isOnlineMeeting,onlineMeetingProvider,location"
+        f"&$orderby=start/dateTime"
+        f"&$top=50"
+    )
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.get(url, headers=_headers())
+        if r.status_code in (403, 404):
+            return []
+        r.raise_for_status()
+        events = r.json().get("value", [])
+    return [e for e in events if e.get("isOnlineMeeting")]
 
 
 async def get_event_attendees(drive_id: str, drive_item_id: str) -> list[str]:

@@ -3,7 +3,7 @@ POST /subscriptions/ensure creates or renews one subscription per domain user.
 Call this endpoint on startup and on a daily cron job."""
 from datetime import datetime, timedelta, timezone
 import httpx
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, HTTPException
 
 from ..config import get_settings
 from ..graph.auth import get_token
@@ -59,8 +59,11 @@ async def _upsert_subscription(
 
 
 @router.post("/subscriptions/ensure")
-async def ensure_subscriptions():
+async def ensure_subscriptions(x_subscription_secret: str = Header(...)):
     """Create or renew a Graph webhook subscription for every domain user's OneDrive."""
+    if not settings.subscription_secret or x_subscription_secret != settings.subscription_secret:
+        raise HTTPException(status_code=401, detail="Invalid secret")
+
     users = await graph.list_domain_users()
     results = []
 

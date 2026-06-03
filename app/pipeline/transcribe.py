@@ -14,19 +14,30 @@ _ASSEMBLYAI_BASE = "https://api.assemblyai.com"
 
 @dataclass
 class TranscriptSegment:
+    """A single diarized utterance from the transcription output.
+
+    ``speaker`` is an anonymised label ("Speaker A", "Speaker B") assigned by
+    the transcription provider — it is not a real name unless the meeting notes
+    extractor can identify the person from context.
+    """
     speaker: str          # "Speaker A" / "Speaker B" — labels, not real names
     text: str
-    start: float
-    end: float
+    start: float          # seconds from start of recording
+    end: float            # seconds from start of recording
 
 
 class Transcriber(ABC):
+    """Abstract base class for all transcription backends."""
+
     @abstractmethod
     async def transcribe(self, audio_path: str) -> list[TranscriptSegment]:
+        """Transcribe the audio file at *audio_path* and return diarized segments."""
         ...
 
 
 class MockTranscriber(Transcriber):
+    """Stub transcriber that returns hard-coded segments — used in local dev/tests."""
+
     async def transcribe(self, audio_path: str) -> list[TranscriptSegment]:
         return [
             TranscriptSegment("Speaker A", "Let's get the SARS compliance report done.", 0.0, 4.0),
@@ -40,6 +51,7 @@ class AssemblyAITranscriber(Transcriber):
     Uploads the MP4, submits for transcription, polls until complete."""
 
     def _headers(self) -> dict:
+        """Return the API key header required by every AssemblyAI request."""
         return {"authorization": settings.assemblyai_api_key}
 
     def _upload(self, audio_path: str) -> str:
@@ -83,6 +95,11 @@ class AssemblyAITranscriber(Transcriber):
             time.sleep(5)
 
     def _transcribe_sync(self, audio_path: str) -> list[TranscriptSegment]:
+        """Synchronous orchestration: upload → submit → poll → parse.
+
+        Run via ``loop.run_in_executor`` so it doesn't block the event loop
+        during the long transcription wait (typically several minutes).
+        """
         print(f"  Uploading to AssemblyAI...", flush=True)
         upload_url = self._upload(audio_path)
         print(f"  Submitting transcription job...", flush=True)
@@ -106,6 +123,10 @@ class AssemblyAITranscriber(Transcriber):
 
 
 def get_transcriber() -> Transcriber:
+    """Factory: return the configured transcriber backend.
+
+    Controlled by the ``TRANSCRIBER_IMPL`` env var (``assemblyai`` | ``mock``).
+    """
     if settings.transcriber_impl == "assemblyai":
         return AssemblyAITranscriber()
     return MockTranscriber()

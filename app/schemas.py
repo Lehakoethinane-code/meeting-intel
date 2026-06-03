@@ -1,10 +1,63 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from .models import Confidence, ProcessingState
+
+
+# ── Registration schemas ──────────────────────────────────────────────────────
+
+class BusinessUnitOut(BaseModel):
+    """API response shape for a business unit."""
+    id: int
+    name: str
+
+
+class RegisteredUserOut(BaseModel):
+    """API response shape for a registered platform user."""
+    upn: str
+    display_name: str | None
+    business_unit_id: int | None
+    business_unit_name: str | None
+    is_admin: bool
+    registered_at: str
+
+
+class RegisterUserIn(BaseModel):
+    """Payload for POST /admin/users — register a new platform user."""
+    upn: str
+    display_name: str | None = None
+    business_unit_id: int | None = None
+    is_admin: bool = False
+
+    @field_validator("upn")
+    @classmethod
+    def must_be_taxconsulting(cls, v: str) -> str:
+        if not v.lower().endswith("@taxconsulting.co.za"):
+            raise ValueError("UPN must be a @taxconsulting.co.za address")
+        return v.lower()
+
+
+class UpdateUserIn(BaseModel):
+    """Payload for PATCH /admin/users/{upn} — update registration details."""
+    display_name: str | None = None
+    business_unit_id: int | None = None
+    is_admin: bool | None = None
+
+
+class ShareMeetingIn(BaseModel):
+    """Payload for POST /reviews/{id}/share — share a transcript with a colleague."""
+    recipient_upn: str
+
+    @field_validator("recipient_upn")
+    @classmethod
+    def must_be_taxconsulting(cls, v: str) -> str:
+        if not v.lower().endswith("@taxconsulting.co.za"):
+            raise ValueError("Can only share with @taxconsulting.co.za addresses")
+        return v.lower()
 
 
 # ── API output models ─────────────────────────────────────────────────────────
 
 class ActionItemOut(BaseModel):
+    """API response shape for a single action item returned to the frontend."""
     id: str
     task: str
     owner: str | None
@@ -16,6 +69,10 @@ class ActionItemOut(BaseModel):
 
 
 class ActionItemEdit(BaseModel):
+    """Partial-update payload accepted by PATCH /reviews/action-items/{id}.
+
+    All fields are optional — only the provided keys are written to the DB.
+    """
     task: str | None = None
     owner: str | None = None
     deadline_iso: str | None = None
@@ -23,16 +80,26 @@ class ActionItemEdit(BaseModel):
 
 
 class MeetingOut(BaseModel):
+    """Full meeting representation returned by GET /reviews and GET /reviews/{id}."""
     id: str
     title: str | None
     state: ProcessingState
     summary: str | None
+    organizer_upn: str | None = None
+    extracted_json: dict | None = None
+    error: str | None = None
     action_items: list[ActionItemOut]
 
 
 # ── Rich extraction schema (what Claude must return) ──────────────────────────
 
 class ExtractedActionItem(BaseModel):
+    """Action item as returned by the AI extractor.
+
+    Carries both the new field names (``action``, ``assigned_to``, ``due_date``)
+    and legacy aliases (``task``, ``owner``, ``deadline_text``) so that older
+    DB records serialise correctly.  ``model_post_init`` keeps them in sync.
+    """
     action: str
     assigned_to: str | None = None
     department: str | None = None
@@ -91,6 +158,11 @@ class SpeakerHighlight(BaseModel):
 
 
 class RichExtractionResult(BaseModel):
+    """Complete structured output produced by the AI extractor for one meeting.
+
+    This is serialised as-is into the ``Meeting.extracted_json`` JSONB column
+    and later read by both the review UI and the email template builder.
+    """
     objective: str = ""
     attendees: list[str] = []
     apologies: list[str] = []

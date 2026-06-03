@@ -9,6 +9,11 @@ _cache = {"token": None, "exp": 0.0}
 
 
 def _get_app() -> msal.ConfidentialClientApplication:
+    """Return a lazily-initialised MSAL ConfidentialClientApplication singleton.
+
+    Using a module-level singleton avoids re-parsing the certificate/secret
+    on every token acquisition call.
+    """
     global _app
     if _app is None:
         _app = msal.ConfidentialClientApplication(

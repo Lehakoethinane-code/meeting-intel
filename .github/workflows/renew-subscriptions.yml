@@ -1,0 +1,24 @@
+name: Renew Graph Subscriptions
+
+on:
+  schedule:
+    - cron: "0 6 * * *"       # daily at 06:00 UTC — well within the 3-day expiry window
+  workflow_dispatch:            # allow manual trigger from GitHub UI
+
+jobs:
+  renew:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Renew webhook subscriptions
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -H "x-subscription-secret: ${{ secrets.SUBSCRIPTION_SECRET }}" \
+            "${{ secrets.RAILWAY_APP_URL }}/subscriptions/ensure")
+          echo "Response: $response"
+          if [ "$response" != "200" ]; then
+            echo "Subscription renewal failed with status $response"
+            exit 1
+          fi
+          echo "Subscriptions renewed successfully"

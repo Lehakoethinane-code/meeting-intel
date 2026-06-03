@@ -88,10 +88,16 @@ Return this exact schema:
 
 
 def _transcript_to_text(segs: list[TranscriptSegment]) -> str:
+    """Flatten diarized segments into a single ``[Speaker X] text`` string for the LLM prompt."""
     return "\n".join(f"[{s.speaker}] {s.text}" for s in segs)
 
 
 def _parse_raw(raw: str) -> RichExtractionResult:
+    """Parse the LLM's raw JSON string into a RichExtractionResult.
+
+    Strips markdown code fences (`` ```json ... ``` ``) that some models add
+    even when instructed not to, then deserialises and maps to the schema.
+    """
     if raw.startswith("```"):
         raw = raw.split("```")[1]
         if raw.startswith("json"):
@@ -115,12 +121,17 @@ def _parse_raw(raw: str) -> RichExtractionResult:
 
 
 class Extractor(ABC):
+    """Abstract base class for all AI extraction backends."""
+
     @abstractmethod
     async def extract(self, segments: list[TranscriptSegment]) -> RichExtractionResult:
+        """Extract structured meeting intelligence from transcript segments."""
         ...
 
 
 class MockExtractor(Extractor):
+    """Stub extractor that returns hard-coded results — used in local dev/tests."""
+
     async def extract(self, segments: list[TranscriptSegment]) -> RichExtractionResult:
         return RichExtractionResult(
             objective="To review the SARS compliance report and confirm client numbers.",
@@ -176,7 +187,15 @@ Return this exact schema:
 
 
 class AnthropicExtractor(Extractor):
+    """Two-pass extractor using Anthropic Claude.
+
+    Pass 1 extracts meeting structure, speakers, and discussion points.
+    Pass 2 extracts action items, deliverables, risks, and next steps separately
+    to avoid the LLM conflating structure with tasks under a single large prompt.
+    """
+
     def _call(self, client, system: str, user: str) -> str:
+        """Synchronous Claude API call — run in an executor to avoid blocking the event loop."""
         msg = client.messages.create(
             model=settings.anthropic_model,
             max_tokens=8192,
@@ -212,6 +231,11 @@ class AnthropicExtractor(Extractor):
 
 
 class AzureOpenAIExtractor(Extractor):
+    """Single-pass extractor using Azure OpenAI (GPT-4o by default).
+
+    Uses ``response_format=json_object`` so the model is constrained to valid JSON.
+    """
+
     async def extract(self, segments: list[TranscriptSegment]) -> RichExtractionResult:
         from openai import AsyncAzureOpenAI
         client = AsyncAzureOpenAI(
@@ -231,6 +255,10 @@ class AzureOpenAIExtractor(Extractor):
 
 
 def get_extractor() -> Extractor:
+    """Factory: return the configured extraction backend.
+
+    Controlled by the ``EXTRACTOR_IMPL`` env var (``anthropic`` | ``azure_openai`` | ``mock``).
+    """
     if settings.extractor_impl == "anthropic":
         return AnthropicExtractor()
     if settings.extractor_impl == "azure_openai":

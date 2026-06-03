@@ -4,10 +4,15 @@ from .config import get_settings
 
 
 class Base(DeclarativeBase):
-    pass
+    """SQLAlchemy declarative base shared by all ORM models in this project."""
 
 
 def _make_engine():
+    """Create the async SQLAlchemy engine from the configured DATABASE_URL.
+
+    Raises RuntimeError early (at import time) if the env var is missing so
+    the server fails fast with a clear message instead of crashing on first query.
+    """
     url = get_settings().asyncpg_url
     if not url:
         raise RuntimeError("DATABASE_URL is not set — add it to your environment variables.")
@@ -19,5 +24,6 @@ SessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=
 
 
 async def get_db() -> AsyncSession:
+    """FastAPI dependency that yields a single AsyncSession per request and closes it on exit."""
     async with SessionLocal() as session:
         yield session

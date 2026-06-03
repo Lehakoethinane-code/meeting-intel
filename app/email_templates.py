@@ -24,6 +24,7 @@ _ROW_ALT = "#EEF2F7"
 
 
 def _section_heading(title: str) -> str:
+    """Render a gold-left-bordered section heading row for use inside the email table."""
     return f"""
     <tr>
       <td style="padding:24px 0 8px 0;">
@@ -44,6 +45,7 @@ def _section_heading(title: str) -> str:
 
 
 def _th(text: str, width: str = "") -> str:
+    """Render a navy-background table header ``<td>`` with optional fixed width."""
     w = f'width="{width}"' if width else ""
     return (
         f'<td {w} style="background:{_TH_BG};color:{_TH_TEXT};font-size:12px;'
@@ -53,6 +55,10 @@ def _th(text: str, width: str = "") -> str:
 
 
 def _td(text: str, alt: bool = False, bold: bool = False) -> str:
+    """Render a data ``<td>`` with optional alternating row background and bold text.
+
+    Empty strings are replaced with an em-dash placeholder styled in grey.
+    """
     bg     = _ROW_ALT if alt else _WHITE
     weight = "600" if bold else "400"
     val    = text if text else "<span style='color:#AAAAAA;'>—</span>"
@@ -64,6 +70,7 @@ def _td(text: str, alt: bool = False, bold: bool = False) -> str:
 
 
 def _detail_table(rows: list[tuple[str, str]]) -> str:
+    """Render a two-column label/value detail table (e.g. Meeting Details section)."""
     html = '<table width="100%" cellpadding="0" cellspacing="0" border="0">'
     for i, (label, value) in enumerate(rows):
         alt = i % 2 == 1
@@ -83,11 +90,113 @@ def _detail_table(rows: list[tuple[str, str]]) -> str:
 
 
 def _empty_row(cols: int) -> str:
+    """Render a full-width italic "None identified" placeholder row spanning *cols* columns."""
     return (
         f'<tr><td colspan="{cols}" style="text-align:center;color:#AAAAAA;'
         f'font-size:12px;font-style:italic;padding:12px;border:1px solid {_BORDER};'
         f'font-family:Arial,sans-serif;">None identified</td></tr>'
     )
+
+
+def build_welcome_email(upn: str, display_name: str | None, business_unit: str | None,
+                        app_url: str) -> tuple[str, str]:
+    """Return (subject, html_body) for the registration welcome / invitation email."""
+    name = display_name or upn.split("@")[0].replace(".", " ").title()
+    bu_line = f"<strong>{business_unit}</strong>" if business_unit else "your business unit"
+    subject = "You've been registered on Meeting Intelligence"
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:{_LIGHT};font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:{_LIGHT};padding:28px 16px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+  <!-- HEADER -->
+  <tr>
+    <td style="background:{_NAVY};border-bottom:4px solid {_GOLD};padding:28px 32px;border-radius:6px 6px 0 0;">
+      <p style="margin:0 0 4px 0;font-size:11px;color:rgba(255,255,255,0.6);
+          letter-spacing:1.5px;text-transform:uppercase;font-family:Arial,sans-serif;">
+        Tax Consulting SA &mdash; Meeting Intelligence
+      </p>
+      <h1 style="margin:0;font-size:22px;font-weight:700;color:{_WHITE};font-family:Arial,sans-serif;">
+        Welcome to Meeting Intelligence
+      </h1>
+    </td>
+  </tr>
+
+  <!-- BODY -->
+  <tr>
+    <td style="background:{_WHITE};padding:36px 32px;
+        border-left:1px solid {_BORDER};border-right:1px solid {_BORDER};">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="font-size:15px;color:{_TEXT};font-family:Arial,sans-serif;line-height:1.8;padding-bottom:24px;">
+            Hi <strong>{name}</strong>,<br><br>
+            Your account has been registered on the <strong>TaxConsulting SA Meeting Intelligence</strong>
+            platform under {bu_line}.<br><br>
+            From now on, your recorded Microsoft Teams meetings will be automatically transcribed,
+            summarised, and made available for your review — no manual effort required.
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td align="center" style="padding:8px 0 28px 0;">
+            <a href="{app_url}"
+               style="display:inline-block;background:{_GOLD};color:{_NAVY};font-weight:700;
+                      font-size:15px;padding:14px 32px;border-radius:6px;
+                      text-decoration:none;font-family:Arial,sans-serif;letter-spacing:0.3px;">
+              Go to My Dashboard &rarr;
+            </a>
+          </td>
+        </tr>
+
+        <!-- What to expect -->
+        <tr>
+          <td style="border-top:1px solid {_BORDER};padding-top:24px;">
+            <p style="margin:0 0 12px 0;font-size:13px;font-weight:700;color:{_NAVY};
+                font-family:Arial,sans-serif;letter-spacing:0.3px;">WHAT TO EXPECT</p>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              {''.join(f"""<tr>
+                <td width="28" style="vertical-align:top;padding:4px 0;">
+                  <span style="color:{_GOLD};font-size:16px;font-weight:700;">&#8226;</span>
+                </td>
+                <td style="font-size:13px;color:{_TEXT};font-family:Arial,sans-serif;
+                    line-height:1.7;padding:4px 0;">{item}</td>
+              </tr>""" for item in [
+                "Meetings you host or attend that are recorded will appear automatically on your dashboard.",
+                "You can review AI-extracted notes, edit action items, and approve the summary before it is shared.",
+                "You can share a transcript with any <strong>@taxconsulting.co.za</strong> colleague.",
+                "Recordings that happened before your registration are accessible on request — if you were listed as an attendee.",
+              ])}
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- FOOTER -->
+  <tr>
+    <td style="background:{_NAVY};padding:16px 32px;border-radius:0 0 6px 6px;">
+      <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.65);
+          line-height:1.6;font-family:Arial,sans-serif;">
+        This email was generated automatically by the Tax Consulting SA Meeting Intelligence system.
+        Processed in accordance with POPIA (Protection of Personal Information Act, 2013).
+        Questions? Contact
+        <a href="mailto:privacy@taxconsulting.co.za"
+           style="color:{_GOLD};text-decoration:none;">privacy@taxconsulting.co.za</a>
+      </p>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>"""
+    return subject, html
 
 
 def build_meeting_email(meeting: "Meeting") -> tuple[str, str]:
